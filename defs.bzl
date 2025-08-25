@@ -115,8 +115,6 @@ def _build_sonar_project_properties(ctx, sq_properties_file, rule):
             "{PROJECT_DESCRIPTION}": ctx.attr.project_description,
             "{ORGANIZATION_KEY}": ctx.attr.organization_key,
             "{SOURCES}": ",".join([parent_path + f.short_path for f in ctx.files.srcs]),
-            "{INCLUSIONS}": ctx.attr.source_inclusions,
-            "{EXCLUSIONS}": ctx.attr.source_exclusions,
             "{TEST_SOURCES}": ",".join([parent_path + f.short_path for f in ctx.files.test_srcs]),
             "{SOURCE_ENCODING}": ctx.attr.source_encoding,
             "{JAVA_BINARIES}": ",".join([parent_path + j.short_path for j in java_files["output_jars"].to_list()]),
@@ -223,8 +221,6 @@ _COMMON_ATTRS = dict(dict(), **{
     "project_description": attr.string(),
     "organization_key": attr.string(),
     "srcs": attr.label_list(allow_files = True, default = []),
-    "source_inclusions": attr.string(),
-    "source_exclusions": attr.string(),
     "source_encoding": attr.string(default = "UTF-8"),
     "targets": attr.label_list(default = []),
     "modules": attr.label_keyed_string_dict(default = {}),
@@ -250,14 +246,12 @@ _sonarqube = rule(
 def sonarqube(
         name,
         project_key,
+        scm_info,
         organization_key = None,
         project_description = None,
-        scm_info = None,
         coverage_report = None,
         project_name = None,
         srcs = [],
-        source_inclusions = None,
-        source_exclusions = None,
         source_encoding = None,
         targets = [],
         test_srcs = [],
@@ -290,8 +284,6 @@ def sonarqube(
         project_description: SonarQube project description.
         organization_key: SonarQube organization key, e.g. `com.example`.
         srcs: Project sources to be analysed by SonarQube.
-        source_inclusions: Source file/folder inclusion patterns.
-        source_exclusions: Source file/folder exclusion patterns.
         source_encoding: Source file encoding.
         targets: Bazel targets to be analysed by SonarQube.
 
@@ -329,8 +321,6 @@ def sonarqube(
         organization_key = organization_key,
         scm_info = scm_info,
         srcs = srcs,
-        source_inclusions = None,
-        source_exclusions = None,
         source_encoding = source_encoding,
         targets = targets,
         modules = modules,
@@ -368,8 +358,6 @@ def sq_project(
         project_description = None,
         organization_key = None,
         srcs = [],
-        source_inclusions = None,
-        source_exclusions = None,
         source_encoding = None,
         targets = [],
         test_srcs = [],
@@ -393,8 +381,6 @@ def sq_project(
         project_description: SonarQube project description.
         organization_key: SonarQube organization key, e.g. `com.example`.
         srcs: Project sources to be analysed by SonarQube.
-        source_inclusions: Source file/folder inclusion patterns.
-        source_exclusions: Source file/folder exclusion patterns.
         source_encoding: Source file encoding.
         targets: Bazel targets to be analysed by SonarQube.
 
@@ -430,8 +416,6 @@ def sq_project(
         project_description = project_description,
         organization_key = organization_key,
         srcs = srcs,
-        source_inclusions = None,
-        source_exclusions = None,
         test_srcs = test_srcs,
         source_encoding = source_encoding,
         targets = targets,
