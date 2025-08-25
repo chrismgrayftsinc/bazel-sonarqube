@@ -2,8 +2,8 @@
 Rules to analyse Bazel projects with SonarQube.
 """
 
-load("@bazel_version//:bazel_version.bzl", "bazel_version")
 load("@bazel_skylib//lib:versions.bzl", "versions")
+load("@bazel_version//:bazel_version.bzl", "bazel_version")
 
 def sonarqube_coverage_generator_binary(name = None):
     if versions.is_at_least(threshold = "2.1.0", version = bazel_version):
@@ -112,6 +112,8 @@ def _build_sonar_project_properties(ctx, sq_properties_file, rule):
         substitutions = {
             "{PROJECT_KEY}": ctx.attr.project_key,
             "{PROJECT_NAME}": ctx.attr.project_name,
+            "{PROJECT_DESCRIPTION}": ctx.attr.project_description,
+            "{ORGANIZATION_KEY}": ctx.attr.organization_key,
             "{SOURCES}": ",".join([parent_path + f.short_path for f in ctx.files.srcs]),
             "{TEST_SOURCES}": ",".join([parent_path + f.short_path for f in ctx.files.test_srcs]),
             "{SOURCE_ENCODING}": ctx.attr.source_encoding,
@@ -216,6 +218,8 @@ def _sonarqube_impl(ctx):
 _COMMON_ATTRS = dict(dict(), **{
     "project_key": attr.string(mandatory = True),
     "project_name": attr.string(),
+    "project_description": attr.string(),
+    "organization_key": attr.string(),
     "srcs": attr.label_list(allow_files = True, default = []),
     "source_encoding": attr.string(default = "UTF-8"),
     "targets": attr.label_list(default = []),
@@ -243,6 +247,8 @@ def sonarqube(
         name,
         project_key,
         scm_info,
+        organization_key = None,
+        project_description = None,
         coverage_report = None,
         project_name = None,
         srcs = [],
@@ -275,6 +281,8 @@ def sonarqube(
             format. This can be created using the generator from this project
             (see the README for example usage).
         project_name: SonarQube project display name.
+        project_description: SonarQube project description.
+        organization_key: SonarQube organization key, e.g. `com.example`.
         srcs: Project sources to be analysed by SonarQube.
         source_encoding: Source file encoding.
         targets: Bazel targets to be analysed by SonarQube.
@@ -309,6 +317,8 @@ def sonarqube(
         name = name,
         project_key = project_key,
         project_name = project_name,
+        project_description = project_description,
+        organization_key = organization_key,
         scm_info = scm_info,
         srcs = srcs,
         source_encoding = source_encoding,
@@ -345,6 +355,8 @@ def sq_project(
         name,
         project_key,
         project_name = None,
+        project_description = None,
+        organization_key = None,
         srcs = [],
         source_encoding = None,
         targets = [],
@@ -366,6 +378,8 @@ def sq_project(
         name: Name of the target.
         project_key: SonarQube project key, e.g. `com.example.project:module`.
         project_name: SonarQube project display name.
+        project_description: SonarQube project description.
+        organization_key: SonarQube organization key, e.g. `com.example`.
         srcs: Project sources to be analysed by SonarQube.
         source_encoding: Source file encoding.
         targets: Bazel targets to be analysed by SonarQube.
@@ -399,6 +413,8 @@ def sq_project(
         name = name,
         project_key = project_key,
         project_name = project_name,
+        project_description = project_description,
+        organization_key = organization_key,
         srcs = srcs,
         test_srcs = test_srcs,
         source_encoding = source_encoding,

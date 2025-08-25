@@ -1,5 +1,7 @@
+sonar.organization={ORGANIZATION_KEY}
 sonar.projectKey={PROJECT_KEY}
 sonar.projectName={PROJECT_NAME}
+sonar.projectDescription={PROJECT_DESCRIPTION}
 
 sonar.sources={SOURCES}
 sonar.tests={TEST_SOURCES}
